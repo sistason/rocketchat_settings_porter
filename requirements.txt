@@ -1,0 +1,2 @@
+requests
+rocketchat_API
