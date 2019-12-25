@@ -1,22 +1,45 @@
 #!/bin/python3
 from rocketchat_API.rocketchat import RocketChat
+from rocketchat_API.APIExceptions.RocketExceptions import RocketAuthenticationException
 from settings_porter import Porter
+import os
+import time
 
 
-def create_test_account(host, username, password):
-    rocket = RocketChat(server_url=host, ssl_verify=False)
-    rocket.users_register(
-        email='email@domain.com', name=username, password=password, username=username)
-    return rocket
+def wait_for_rocketchat(rocket):
+    success = False
+    while not success:
+        time.sleep(1)
+        try:
+            ret = rocket.info().json()
+            print(ret)
+            success = ret.get('success')
+        except ConnectionError:
+            print('conn')
+        except:
+            pass
 
 
 def test():
-    username = 'admin'
-    password = 'foobarbaz'
-    host = 'http://rocketchat:3000'
+    username = os.environ.get('API_USER', 'admin')
+    password = os.environ.get('API_PASS', 'foobarbaz')
+    host = os.environ.get('API_HOST', 'http://rocketchat:3000')
 
-    rocket = create_test_account(host, username, password)
-    porter = Porter(user=username, password=password, host=host)
+    rocket = RocketChat(server_url=host, ssl_verify=False)
+
+    wait_for_rocketchat(rocket)
+
+    # If rocketchat-version < 1.0, register the admin-user manually
+    if rocket.info().json().get('info', {}).get('version', "-1").startswith('0'):
+        rocket.users_register(
+            email='email@domain.com', name=username, password=password, username=username)
+    try:
+        porter = Porter(user=username, password=password, host=host)
+    except RocketAuthenticationException:
+        # Sometimes the server is up but the admin not yet created. Wait a few secs
+        print('first auth failed, wait 5 more secs...')
+        time.sleep(5)
+        porter = Porter(user=username, password=password, host=host)
 
     print("Test defaults")
     defaults = porter._export()
@@ -35,16 +58,20 @@ def test():
     results = porter._export()
 
     print("check results")
+    success = True
     for setting_id, test_value in test_settings.items():
         result_value = results.get(setting_id)
         if result_value != test_value:
             print('Test LOAD_SETTINGS failed: Settings importet were imported wrongly!')
             print('  Wrong: {}, imported: "{}", exported: "{}"'.format(setting_id, test_value, result_value))
+            success = False
 
         # restore defaults
         porter._import({setting_id: defaults.get(setting_id)})
 
-    return True
+    if success:
+        print("tests successful!") 
+        return True
 
 
 if __name__ == '__main__':
