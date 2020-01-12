@@ -1,6 +1,7 @@
 # rocketchat_settings_porter
 
 ![Docker Automated build](https://img.shields.io/docker/automated/sistason/rocketchat_settings)
+
 Import and Export Rocketchat-settings via the API. Enables config-management via CI/CD.
 
 ## Dependencies
