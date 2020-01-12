@@ -12,10 +12,9 @@ def wait_for_rocketchat(rocket):
         time.sleep(1)
         try:
             ret = rocket.info().json()
-            print(ret)
-            success = ret.get('success')
+            success = ret.get('version')
         except ConnectionError:
-            print('conn')
+            pass
         except:
             pass
 

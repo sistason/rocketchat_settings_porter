@@ -19,12 +19,14 @@ Configure with the environment variables `API_HOST` (http://rocketchat:3000), `A
 Start with the args:
 - "import": Import all settings from the mounted file
 - "export_all": Export all current settings to the mounted file
-- "export_changed": Export only settings with non-default-values to the mounted file 
+- "export_changed": Export only settings with non-default-values to the mounted file
+- "test": Test the functionality. See below.
 
 ## Test
 
-The `docker-compose.yaml` in the tests/ directory starts a rocketchat-server.
-Then, run the `tests/settings_porter_tests.py`.
+The `docker-compose_*.yaml` in the tests/ directory starts a rocketchat-server.
+As the interaction with MongoDB changed since RC v1.0, use the compose file depending on your version of rocketchat.
+Then, run the exporter with the argument `test`.
 
 ## Meta-Build
 
