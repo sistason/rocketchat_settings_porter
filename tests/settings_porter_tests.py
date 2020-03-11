@@ -12,7 +12,7 @@ def wait_for_rocketchat(rocket):
         time.sleep(1)
         try:
             ret = rocket.info().json()
-            success = ret.get('version')
+            success = ret.get('success')
         except ConnectionError:
             pass
         except:
@@ -27,6 +27,7 @@ def test():
     rocket = RocketChat(server_url=host, ssl_verify=False)
 
     wait_for_rocketchat(rocket)
+    print('Rocketchat available')
 
     # If rocketchat-version < 1.0, register the admin-user manually
     if rocket.info().json().get('info', {}).get('version', "-1").startswith('0'):
