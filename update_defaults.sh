@@ -22,6 +22,9 @@ docker build -t "settings_porter:${VERSION}" .
 
 if ! docker run --net=rocketchat_settings_porter_default "settings_porter:${VERSION}" test; then
   echo "Tests failed!"
+  docker-compose -f docker-compose_settings-update.yaml down
+  rm docker-compose_settings-update.yaml
+  docker image prune -f
   exit 1
 fi
 
@@ -33,7 +36,7 @@ if docker run -v "$(pwd)/default_settings/${VERSION}.json:/settings.json" --net=
 
   git add "default_settings/${VERSION}.json"
   git commit "default_settings/${VERSION}.json" -m"Automatic update of defaults for version ${VERSION}"
-  #git push
+  git push
 fi
 
 if [ ! -s "default_settings/${VERSION}.json" ]; then
@@ -41,3 +44,4 @@ if [ ! -s "default_settings/${VERSION}.json" ]; then
 fi
 docker-compose -f docker-compose_settings-update.yaml down
 rm docker-compose_settings-update.yaml
+docker image prune -f
