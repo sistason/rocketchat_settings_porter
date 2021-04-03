@@ -37,7 +37,7 @@ class Porter:
 
         api_default_count = settings.get('API_Default_Count', 50)
 
-        # Get rest
+        # Get remaining
         for call in range(1, int(data.get('total', 1) / api_default_count)+1):
             data = self.rocket.settings(count=api_default_count, offset=call*api_default_count).json()
             for sett_ in data.get('settings', []):
@@ -48,7 +48,7 @@ class Porter:
     def export_changed(self):
         version = self.rocket.info().json().get('info', {}).get('version', 0)
         if not version:
-            print('Could not get server-version!')
+            print('Could not get server version!')
             return
 
         try:

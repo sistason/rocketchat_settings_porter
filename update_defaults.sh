@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -x
 set -e
 
 get_newest_rc_version() {
@@ -14,13 +13,22 @@ else
   VERSION=$1
 fi
 
-sed "s/rocket.chat:latest/rocket.chat:${VERSION}/g" tests/docker-compose.yaml > docker-compose_settings-update.yaml
+if [ -e "default_settings/${VERSION}.json" ]; then
+    echo "Version ${VERSION} already exists"
+    exit 0
+fi
+
+# Use different compose-files for versions < 1.0
+if [[ $VERSION == 0* ]]; then
+    sed "s/rocket.chat:latest/rocket.chat:${VERSION}/g" tests/docker-compose_lt-1.0.yaml > docker-compose_settings-update.yaml
+else
+    sed "s/rocket.chat:latest/rocket.chat:${VERSION}/g" tests/docker-compose_ge-1.0.yaml > docker-compose_settings-update.yaml
+fi
 docker-compose -f docker-compose_settings-update.yaml up -d
-sleep 60
 
-docker build -t "settings_porter:${VERSION}" .
+docker build -t settings_porter .
 
-if ! docker run --net=rocketchat_settings_porter_default "settings_porter:${VERSION}" test; then
+if ! docker run --net=rocketchat_settings_porter_default settings_porter test; then
   echo "Tests failed!"
   docker-compose -f docker-compose_settings-update.yaml down
   rm docker-compose_settings-update.yaml
@@ -32,7 +40,7 @@ touch "default_settings/${VERSION}.json"
 
 if docker run -v "$(pwd)/default_settings/${VERSION}.json:/settings.json" --net=rocketchat_settings_porter_default \
               -e API_USER="admin" -e API_HOST="http://rocketchat:3000" \
-              -e API_PASS="foobarbaz" -e SETTINGS_PATH="/settings.json" settings_porter:${VERSION} export_all; then
+              -e API_PASS="foobarbaz" -e SETTINGS_PATH="/settings.json" settings_porter export_all; then
 
   git add "default_settings/${VERSION}.json"
   git commit "default_settings/${VERSION}.json" -m"Automatic update of defaults for version ${VERSION}"
