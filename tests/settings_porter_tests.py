@@ -24,6 +24,7 @@ def test():
     password = os.environ.get('API_PASS', 'foobarbaz')
     host = os.environ.get('API_HOST', 'http://rocketchat:3000')
 
+    print('Waiting for rocketchat to be fully set up...')
     rocket = RocketChat(server_url=host, ssl_verify=False)
 
     wait_for_rocketchat(rocket)
