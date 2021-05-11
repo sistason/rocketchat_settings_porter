@@ -3,7 +3,7 @@
 if [ $# != 1 ]; then
   all_versions=$(wget -q https://registry.hub.docker.com/v1/repositories/rocket.chat/tags -O- | jq -r '.[] | .name' | tail -n +150)
 else
-  all_versions=[$1]
+  all_versions="$1"
 fi
 
 function main {

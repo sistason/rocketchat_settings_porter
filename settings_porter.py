@@ -42,7 +42,6 @@ class Porter:
             data = self.rocket.settings(count=api_default_count, offset=call*api_default_count).json()
             for sett_ in data.get('settings', []):
                 settings[sett_.get('_id')] =  sett_.get('value')
-            print(f"call {call}")
 
         return settings
 
