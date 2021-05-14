@@ -18,14 +18,15 @@ class Porter:
         self.session = Session()
         self.rocket = RocketChat(self.username, self.password, server_url=self.host, session=self.session)
 
-        self._wait_for_rocketchat()
+        self._wait_for_rocketchat(self.rocket)
 
-    def _wait_for_rocketchat(self):
+    @staticmethod
+    def _wait_for_rocketchat(rocket):
         timeout = 60
         while timeout:
             time.sleep(1)
             try:
-                ret = self.rocket.info().json()
+                ret = rocket.info().json()
                 if ret.get('success'):
                     return
             except ConnectionError:

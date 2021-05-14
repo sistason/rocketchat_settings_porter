@@ -14,6 +14,7 @@ def test():
     print('Waiting for rocketchat to be fully set up...')
     rocket = RocketChat(server_url=host, ssl_verify=False)
 
+    Porter._wait_for_rocketchat(rocket)
     print('Rocketchat available')
 
     # If rocketchat-version < 1.0, register the admin-user manually
