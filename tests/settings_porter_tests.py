@@ -6,19 +6,6 @@ import os
 import time
 
 
-def wait_for_rocketchat(rocket):
-    success = False
-    while not success:
-        time.sleep(1)
-        try:
-            ret = rocket.info().json()
-            success = ret.get('success')
-        except ConnectionError:
-            pass
-        except:
-            pass
-
-
 def test():
     username = os.environ.get('API_USER', 'admin')
     password = os.environ.get('API_PASS', 'foobarbaz')
@@ -27,7 +14,6 @@ def test():
     print('Waiting for rocketchat to be fully set up...')
     rocket = RocketChat(server_url=host, ssl_verify=False)
 
-    wait_for_rocketchat(rocket)
     print('Rocketchat available')
 
     # If rocketchat-version < 1.0, register the admin-user manually

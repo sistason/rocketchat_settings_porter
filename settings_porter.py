@@ -2,7 +2,7 @@
 from rocketchat_API.rocketchat import RocketChat
 from requests.sessions import Session
 import json
-
+import time
 import os
 
 
@@ -17,6 +17,22 @@ class Porter:
 
         self.session = Session()
         self.rocket = RocketChat(self.username, self.password, server_url=self.host, session=self.session)
+
+        self._wait_for_rocketchat()
+
+    def _wait_for_rocketchat(self):
+        timeout = 60
+        while timeout:
+            time.sleep(1)
+            try:
+                ret = self.rocket.info().json()
+                if ret.get('success'):
+                    return
+            except ConnectionError:
+                pass
+            except:
+                pass
+            timeout =- 1
 
     def import_settings(self):
         with open(self.destination, 'r') as f:
