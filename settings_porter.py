@@ -32,7 +32,7 @@ class Porter:
             try:
                 if self.rocket is None:
                     self.rocket = RocketChat(self.username, self.password, server_url=self.host, session=self.session)
-                ret = rocket.info().json()
+                ret = self.rocket.info().json()
                 if ret.get('success'):
                     logger.info("rocketchat available!")
                     return
