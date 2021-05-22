@@ -57,7 +57,9 @@ class Porter:
 
         for _id, value in settings.items():
             if _id.startswith("Accounts_OAuth_Custom-"):
-                import_oauth[_id[len("Accounts_OAuth_Custom-"):]] = True
+                custom_name = _id.split('-')
+                if len(custom_name) == 2:
+                    import_oauth[custom_name[1]] = True
                 continue
             self.rocket.settings_update(_id, value)
 
