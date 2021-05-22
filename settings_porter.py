@@ -42,8 +42,25 @@ class Porter:
         self._import(settings_to_import)
 
     def _import(self, settings):
+        import_oauth = {}
+
         for _id, value in settings.items():
+            if _id.startswith("Accounts_OAuth_Custom-"):
+                import_oauth[_id[len("Accounts_OAuth_Custom-"):]] = True
+                continue
             self.rocket.settings_update(_id, value)
+
+        if import_oauth:
+            # create all neccessary OAuth services
+            for i, oauth_service_name in enumerate(import_oauth.keys()):
+                print(f'create {oauth_service_name}')
+                json_ = json.dumps({'msg': 'method', 'method': 'addOAuthService', 'params': [oauth_service_name], 'id': 1337+i})
+                self.rocket.call_api_post("method.call/addOAuthService", message=json_)
+
+            for _id, value in settings.items():
+                if _id.startswith("Accounts_OAuth_Custom-"):
+                    self.rocket.settings_update(_id, value)
+         
 
     def _export(self):
         data = self.rocket.settings().json()
