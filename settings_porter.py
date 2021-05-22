@@ -16,16 +16,17 @@ class Porter:
         self.destination = os.environ.get('SETTINGS_PATH', destination)
 
         self.session = Session()
-        self.rocket = RocketChat(self.username, self.password, server_url=self.host, session=self.session)
 
-        self._wait_for_rocketchat(self.rocket)
+        self._wait_for_rocketchat()
 
-    @staticmethod
-    def _wait_for_rocketchat(rocket):
+    def _wait_for_rocketchat(self, rocket=None):
+        self.rocket = rocket
         timeout = 60
         while timeout:
             time.sleep(1)
             try:
+                if self.rocket is None:
+                    self.rocket = RocketChat(self.username, self.password, server_url=self.host, session=self.session)
                 ret = rocket.info().json()
                 if ret.get('success'):
                     return
